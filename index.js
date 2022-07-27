@@ -1,6 +1,7 @@
 const {Client} = require('pg');
 const express=require('express');
 const { appendFile } = require('fs');
+const bodyParser=require('body-parser');
 
 const client = new Client({
     user: "postgres",
@@ -11,6 +12,11 @@ const client = new Client({
 });
 
 const app = express();
+var jsonParser = bodyParser.json();
+var urlencodedParser = bodyParser.urlencoded({ extended: false });
+
+app.set('view engine','ejs');
+
 console.log('test');
 client.connect()
 .then(() => console.log("Connected successfully"))
@@ -18,6 +24,11 @@ client.connect()
 .then(results => console.table(results.rows))
 .catch(e=> console.log)
 
+// client.query(
+//     "INSERT INTO student(rno, name) values(4, 'clay')",(err,res)=>{
+//         if(err) throw err;
+//     }
+// )
 
 app.get('/',(req,res)=>{
     var sql='select * from student';
@@ -27,5 +38,30 @@ app.get('/',(req,res)=>{
         res.send(data.rows);
     });
 });
+app.get('/form',(req,res)=>{
+    res.render('form');
+})
+app.post('/insert', urlencodedParser, async(req,res)=>{
+    // try{
+    //     const newrno=req.body.rno;
+    //     console.log(newrno);
+    //     const newname= req.body.name;
+    //     const newitem= await client.query("INSERT INTO student(rno, name) VALUES($1, $2)", [newrno, newname]);
+    //     res.json(newitem);
+    // }
+    // catch(err){
+    //     console.error(err.message);
+    // }
+    try{
+    var rollnum=req.body.rno;
+    var newname=req.body.name;
+    console.log(rollnum);
+    console.log(newname);
+    var sqlitem=await client.query("insert into student values ($1, $2)",[rollnum, newname]);
+    }
+    catch(err){
+        console.log(err);
+    }
+}); 
 
 app.listen(3000);
