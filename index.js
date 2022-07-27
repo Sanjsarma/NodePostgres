@@ -40,7 +40,14 @@ app.get('/',(req,res)=>{
 });
 app.get('/form',(req,res)=>{
     res.render('form');
-})
+});
+app.get('/delete',(req,res)=>{
+    res.render('del');
+});
+app.get('/update',(req,res)=>{
+    res.render('update');
+});
+
 app.post('/insert', urlencodedParser, async(req,res)=>{
     // try{
     //     const newrno=req.body.rno;
@@ -63,5 +70,27 @@ app.post('/insert', urlencodedParser, async(req,res)=>{
         console.log(err);
     }
 }); 
-
+app.post('/delete', urlencodedParser, async(req,res)=>{
+     try{
+        var rollnum=req.body.rno;
+        var newname=req.body.name;
+        var sqlitem=await client.query("delete from student where rno=$1",[rollnum]);
+        console.log('deleted');
+        res.redirect('/');
+    }
+    catch(err){
+        console.error(err.message);
+    }
+});
+app.post('/update', urlencodedParser, async(req,res)=>{
+   try{
+    var rollnum=req.body.rno;
+    var newname=req.body.name;
+    var sqlitem=await client.query("update student set name=$1 where rno=$2",[newname, rollnum])
+    res.redirect('/')  
+ }
+   catch(err){
+    console.log(error);
+   }
+});
 app.listen(3000);
